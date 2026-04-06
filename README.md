@@ -147,7 +147,7 @@ python src/train.py
 See:
 
 ```
-notebooks/absa_experiment.ipynb
+notebooks/aspect_based_sentiment_analysis_with_bert_blog_1_aio26_hautm_cs.py
 ```
 
 ---
