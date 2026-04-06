@@ -1,7 +1,7 @@
-from transformers import AutoModelForSequenceClassification
+from transformers import BertForTokenClassification
 
-def build_atsc_model():
-return AutoModelForSequenceClassification.from_pretrained(
-"vinai/phobert-base",
-num_labels=3
-)
+def build_ate_model(num_labels=3):
+    return BertForTokenClassification.from_pretrained(
+        "bert-base-uncased",
+        num_labels=num_labels
+    )
