@@ -1,35 +1,30 @@
-from transformers import AutoTokenizer
+import pandas as pd
 
-tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
+def clean_text(text):
+    if not isinstance(text, str):
+        return ""
+    return text.lower().strip()
 
-tag2id = {'O': 0, 'B-ASP': 1, 'I-ASP': 2}
+def build_absa_dataset(df):
+    """
+    Convert raw reviews → synthetic ABSA format
+    """
+    data = []
 
-def tokenize_ate(examples):
-tokenized = tokenizer(
-examples["sentence"],
-truncation=True,
-padding="max_length",
-max_length=128
-)
+    for _, row in df.iterrows():
+        sentence = clean_text(row.get("review", ""))
 
-```
-labels = []
+        if sentence == "":
+            continue
 
-for i, aspect in enumerate(examples["aspect_term"]):
-    tokens = tokenizer.tokenize(examples["sentence"][i])
-    aspect_tokens = tokenizer.tokenize(aspect)
+        # simple heuristic
+        aspect = "product"
+        sentiment = "positive" if row.get("rating", 3) >= 4 else "negative"
 
-    label_ids = [0] * len(tokens)
+        data.append({
+            "sentence": sentence,
+            "aspect_term": aspect,
+            "sentiment": sentiment
+        })
 
-    for j in range(len(tokens)):
-        if tokens[j:j+len(aspect_tokens)] == aspect_tokens:
-            label_ids[j] = 1
-            for k in range(1, len(aspect_tokens)):
-                label_ids[j+k] = 2
-
-    label_ids = label_ids[:128] + [0]*(128-len(label_ids))
-    labels.append(label_ids)
-
-tokenized["labels"] = labels
-return tokenized
-```
+    return pd.DataFrame(data)
